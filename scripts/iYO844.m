@@ -1,4 +1,4 @@
-clear all
+
 
 % load in the file
 fileName = 'iYO844.mat';

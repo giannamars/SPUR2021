@@ -1,11 +1,11 @@
-clear all 
+
 
 fileName = 'iLJ478.mat';
 if ~exist('modelOri','var')
     modelOri = readCbModel(fileName);
 end
 
-modelOri = changeRxnBounds(modelOri,'ATPM',1000,'u');
+modelOri = changeRxnBounds(modelOri,'ATPM',20,'u');
 model = modelOri;
 
 %model.rxns

@@ -1,4 +1,4 @@
-clear all 
+ 
 
 fileName = 'iMM904.mat';
 if ~exist('modelOri','var')

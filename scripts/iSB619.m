@@ -1,4 +1,4 @@
-clear all 
+
 
 fileName = 'iSB619.mat';
 if ~exist('modelOri','var')
