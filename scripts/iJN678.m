@@ -1,4 +1,4 @@
-clear all 
+
 
 fileName = 'iJN678.mat';
 if ~exist('modelOri','var')
@@ -10,5 +10,5 @@ model = modelOri;
 
 %model.rxns
 
-model = changeObjective(model,'BIOMASS_Ec_SynMixo');
+model = changeObjective(model,'BIOMASS_Ec_SynHetero');
 FBAsolution = optimizeCbModel(model,'max');
