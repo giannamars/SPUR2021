@@ -5,7 +5,7 @@ initCobraToolbox(false) % false, since don't want to update
 changeCobraSolver('gurobi','all');   % change LP solver to GUROBI
 %
 % load the model
-fileName = '/Users/glmarschmann/Documents/MATLAB/cobratoolbox/files/iAF692.mat';
+fileName = 'iAF692.mat';
 if ~exist('modelOri','var')
     modelOri = readCbModel(fileName);
 end
@@ -35,7 +35,8 @@ model = changeObjective(model,'BIOMASS_Mb_30');
 
 %%% Test for growth on different sources 
 % Glucose under aerobic conditions
-model.lb(find(ismember(model.rxns, 'EX_o2[e]'))) = -1000;
+
+
 model.lb(find(ismember(model.rxns, 'EX_h2o[e]'))) = -1000;
 model.ub(find(ismember(model.rxns, 'EX_h2o[e]'))) = 1000;
 model.ub(find(ismember(model.rxns, 'EX_co2[e]'))) = 1000;
