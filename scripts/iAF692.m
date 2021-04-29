@@ -1,48 +1,126 @@
-% clear all removes the solver configuration!
-%
+%% I'm getting values for Geobacter metallireducens GS-15 here,
+%% did we exchange the files by mistake? 
+clear; 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 initCobraToolbox(false) % false, since don't want to update
-% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 changeCobraSolver('gurobi','all');   % change LP solver to GUROBI
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load the model
-fileName = 'iAF692.mat';
+fileName = '/Users/glmarschmann/Documents/MATLAB/cobratoolbox/files/iAF692.mat';
 if ~exist('modelOri','var')
     modelOri = readCbModel(fileName);
 end
-%
 model = modelOri; % keep original copy in case we modify the metabolic network
 outmodel = writeCbModel(model, 'xls', 'iAF692_model.xls'); % write all reactions to xls file
-%
-% Set the lower bound of all exchange and sink (siphon) reactions to ensure that only
-% those metabolites that are supposed to be taken up are indded supplied to the model.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+modelClosed = model;
+% Find all exchange reactions in the model
 modelexchanges1 = strmatch('Ex_', model.rxns); 
-modelexchanges4 = strmatch('EX_', model.rxns); % identify 70 exchange reactions
+modelexchanges4 = strmatch('EX_', model.rxns);          % identify 70 exchange reactions
 modelexchanges2 = strmatch('DM_', model.rxns);
 modelexchanges3 = strmatch('sink_', model.rxns);
 % To make sure we've found all exchange reactions via string matching, we
 % also check for reactions that contain only one non-zero entry in the S matrix column
 selExc = (find(full((sum(abs(model.S)==1, 1)==1) & (sum(model.S~=0) == 1))))'; % identify 70 exchange reactions
+modelexchanges = unique([modelexchanges1; modelexchanges2; modelexchanges3; modelexchanges4; selExc]);
+reaction_abbrvs = model.rxns(modelexchanges); % store reaction abbreviations in model
+reaction_names = model.rxnNames(modelexchanges); % store reaction names
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% For the set of 13 models, we want to manipulate the availability of 14
+% individual C sources in an aerobic environment, and calculate CUE under exclusive uptake of each
+% metabolite separately
 %
-% set lower bounds of exchange reactions to zero
-modelexchanges = unique([modelexchanges1; modelexchanges2; modelexchanges3; modelexchanges4; selExc; BM]);
+% set lower bounds (=uptake) of all exchange reactions to zero, meaning to uptake
 model.lb(find(ismember(model.rxns, model.rxns(modelexchanges))))=0;
-%
-% set uber bounds to 1000
+% set uber bounds (=excretion) to 1000 just to be safe
 model.ub(selExc) = 1000; 
-%
-% biomass optimization
+% change objective function to biomass optimization
 model = changeObjective(model,'BIOMASS_Mb_30');
+modelClosedOri = modelClosed; % store this setup in modelClosedOri so we don't have to repeat above lines
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Test for growth on different sources 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% D-Glucose not found in reaction_names (looked manually)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fumarate not found in reaction_names (looked manually)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Acetate
+modelClosed = modelClosedOri;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_o2_e'))) = -1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_ac_e'))) = -1;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_ac_e'))) = -1;
+FBA = optimizeCbModel(modelClosed, 'max');
+% calc CUE
+%printFluxVector(model,FBA.x,true,true) % only print exchange reaction fluxes 
+%
+exchange_fluxes = FBA.x(find(ismember(modelClosed.rxns, reaction_abbrvs)));
+%
+exchange_atoms = zeros(length(exchange_fluxes),1);
+for i = 1:length(exchange_atoms)
+    tmp1 = printRxnFormula(modelClosed,reaction_abbrvs(i));
+    tmp2 = strtrim(regexp(tmp1{1}, '->|<=>', 'split'));
+    metID = findMetIDs(modelClosed, tmp2{1});
+    metFormula= modelClosed.metFormulas(metID);
+    atomicStructure = parse_formula(metFormula{1});
+    C_atoms = zeros(1);
+    if(isfield(atomicStructure, 'C'))
+        C_atoms(1) = atomicStructure.C;
+    else
+        C_atoms(1) = 0;
+    end
+    exchange_atoms(i) = C_atoms(1);
+end
+%
+Secretion_fluxes = exchange_fluxes(exchange_fluxes > 0.0);
+Secretion_atoms = exchange_atoms(exchange_fluxes > 0.0);
+Uptake_fluxes = exchange_fluxes(exchange_fluxes < 0.0);
+Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
+%
+Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
+Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
+%
+CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Pyruvate
+modelClosed = modelClosedOri;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_o2_e'))) = -1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_pyr_e'))) = -1;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_pyr_e'))) = -1;
+FBA = optimizeCbModel(modelClosed, 'max');
 
-%%% Test for growth on different sources 
-% Glucose under aerobic conditions
-
-
-model.lb(find(ismember(model.rxns, 'EX_h2o[e]'))) = -1000;
-model.ub(find(ismember(model.rxns, 'EX_h2o[e]'))) = 1000;
-model.ub(find(ismember(model.rxns, 'EX_co2[e]'))) = 1000;
-model.lb(find(ismember(model.rxns, 'EX_glc_D[e]'))) = -1;  % constrain uptake flux
-model.ub(find(ismember(model.rxns, 'EX_glc_D[e]'))) = -1;
-
-% solve
-FBAsolution = optimizeCbModel(model,'max');
-
+exchange_fluxes = FBA.x(find(ismember(modelClosed.rxns, reaction_abbrvs)));
+%
+exchange_atoms = zeros(length(exchange_fluxes),1);
+for i = 1:length(exchange_atoms)
+    tmp1 = printRxnFormula(modelClosed,reaction_abbrvs(i));
+    tmp2 = strtrim(regexp(tmp1{1}, '->|<=>', 'split'));
+    metID = findMetIDs(modelClosed, tmp2{1});
+    metFormula= modelClosed.metFormulas(metID);
+    atomicStructure = parse_formula(metFormula{1});
+    C_atoms = zeros(1);
+    if(isfield(atomicStructure, 'C'))
+        C_atoms(1) = atomicStructure.C;
+    else
+        C_atoms(1) = 0;
+    end
+    exchange_atoms(i) = C_atoms(1);
+end
+%
+Secretion_fluxes = exchange_fluxes(exchange_fluxes > 0.0);
+Secretion_atoms = exchange_atoms(exchange_fluxes > 0.0);
+Uptake_fluxes = exchange_fluxes(exchange_fluxes < 0.0);
+Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
+%
+Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
+Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
+%
+CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
