@@ -12,3 +12,5 @@ model = changeObjective(model,'BIOMASS_BS_10');
 
 FBAsolution = optimizeCbModel(model,'max');
 
+
+

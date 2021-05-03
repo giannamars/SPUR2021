@@ -1,3 +1,5 @@
+
+% load in the file
 fileName = 'STM_v1_0.mat';
 if ~exist('modelOri','var')
     modelOri = readCbModel(fileName);
@@ -8,6 +10,6 @@ model = modelOri;
 
 %model.rxns
 
-model = changeObjective(model,'BIOMASS_Ec_iAF1260_core_59p81M');
-FBAsolution = optimizeCbModel(model,'max');
+model = changeObjective(model,'BIOMASS_Ec_iAF1260_core_59p81M')
+FBAsolution = optimizeCbModel(model,'max')
 
