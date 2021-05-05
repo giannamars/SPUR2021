@@ -7,6 +7,10 @@ end
 modelOri = changeRxnBounds(modelOri,'ATPM',1000,'u');
 model = modelOri;
 
+%model.rxns
+
+model = changeObjective(model,'BIOMASS_');
+FBAsolution = optimizeCbModel(model,'max');
 % set lower bounds (=uptake) of all exchange reactions to zero, meaning to uptake
 model.lb(find(ismember(model.rxns, model.rxns(modelexchanges))))=0;
 % set uber bounds (=excretion) to 1000 just to be safe
