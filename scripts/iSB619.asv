@@ -1,19 +1,17 @@
-%% I'm getting values for Geobacter metallireducens GS-15 here,
-%% did we exchange the files by mistake? 
-clear; 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-initCobraToolbox(false) % false, since don't want to update
-%% 
-changeCobraSolver('gurobi','all');   % change LP solver to GUROBI
-%% 
-% load the model
-fileName = '/Users/garrettcleary/Documents/MATLAB/SPUR2021/files/iAF692.mat';
+
+
+fileName = 'iSB619.mat';
 if ~exist('modelOri','var')
     modelOri = readCbModel(fileName);
 end
-model = modelOri; % keep original copy in case we modify the metabolic network
-outmodel = writeCbModel(model, 'xls', 'iAF692_model.xls'); % write all reactions to xls file
-%%
+
+modelOri = changeRxnBounds(modelOri,'ATPM',1000,'u');
+model = modelOri;
+
+%model.rxns
+%model = changeObjective(model,'BIOMASS_SA_1a');
+%FBAsolution = optimizeCbModel(model,'max');
+outmodel = writeCbModel(model, 'xls', 'iSB619_model.xls'); % write all reactions to xls file
 modelClosed = model;
 % Find all exchange reactions in the model
 modelexchanges1 = strmatch('Ex_', model.rxns); 
@@ -26,24 +24,15 @@ selExc = (find(full((sum(abs(model.S)==1, 1)==1) & (sum(model.S~=0) == 1))))'; %
 modelexchanges = unique([modelexchanges1; modelexchanges2; modelexchanges3; modelexchanges4; selExc]);
 reaction_abbrvs = model.rxns(modelexchanges); % store reaction abbreviations in model
 reaction_names = model.rxnNames(modelexchanges); % store reaction names
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% For the set of 13 models, we want to manipulate the availability of 14
-% individual C sources in an aerobic environment, and calculate CUE under exclusive uptake of each
-% metabolite separately
-%
+
 % set lower bounds (=uptake) of all exchange reactions to zero, meaning to uptake
 model.lb(find(ismember(model.rxns, model.rxns(modelexchanges))))=0;
 % set uber bounds (=excretion) to 1000 just to be safe
 model.ub(selExc) = 1000; 
 % change objective function to biomass optimization
-model = changeObjective(model,'BIOMASS_Mb_30');
+model = changeObjective(model,'BIOMASS_');
 modelClosedOri = modelClosed; % store this setup in modelClosedOri so we don't have to repeat above lines
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Test for growth on different sources 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% D-Glucose not found in reaction_names (looked manually)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Fumarate not found in reaction_names (looked manually)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Acetate
 modelClosed = modelClosedOri;
@@ -84,7 +73,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
+iSB619_1_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pyruvate
 modelClosed = modelClosedOri;
@@ -123,7 +112,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
+iSB619_2CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % D-glucose
 modelClosed = modelClosedOri;
@@ -476,15 +465,15 @@ Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
 CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% D
+% D-lactate
 modelClosed = modelClosedOri;
 modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_o2_e'))) = -1000;
 modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = -1000;
 modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = 1000;
 modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = -1000;
 modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = 1000;
-modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_glu__L_e'))) = -1;
-modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_glu__L_e'))) = -1;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_lac__D_e'))) = -1;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_lac__D_e'))) = -1;
 FBA = optimizeCbModel(modelClosed, 'max');
 
 exchange_fluxes = FBA.x(find(ismember(modelClosed.rxns, reaction_abbrvs)));%
@@ -514,4 +503,83 @@ Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
 CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% L-malate
+modelClosed = modelClosedOri;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_o2_e'))) = -1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_mal__L_e'))) = -1;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_mal__L_e'))) = -1;
+FBA = optimizeCbModel(modelClosed, 'max');
+
+exchange_fluxes = FBA.x(find(ismember(modelClosed.rxns, reaction_abbrvs)));%
+%
+exchange_atoms = zeros(length(exchange_fluxes),1);
+for i = 1:length(exchange_atoms)
+    tmp1 = printRxnFormula(modelClosed,reaction_abbrvs(i));
+    tmp2 = strtrim(regexp(tmp1{1}, '->|<=>', 'split'));
+    metID = findMetIDs(modelClosed, tmp2{1});
+    metFormula= modelClosed.metFormulas(metID);
+    atomicStructure = parse_formula(metFormula{1});
+    C_atoms = zeros(1);
+    if(isfield(atomicStructure, 'C'))
+        C_atoms(1) = atomicStructure.C;
+    else
+        C_atoms(1) = 0;
+    end
+    exchange_atoms(i) = C_atoms(1);
+end
+%
+Secretion_fluxes = exchange_fluxes(exchange_fluxes > 0.0);
+Secretion_atoms = exchange_atoms(exchange_fluxes > 0.0);
+Uptake_fluxes = exchange_fluxes(exchange_fluxes < 0.0);
+Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
+%
+Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
+Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
+%
+CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Succinate
+modelClosed = modelClosedOri;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_o2_e'))) = -1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = -1000;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = 1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_succ_e'))) = -1;
+modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_succ_e'))) = -1;
+FBA = optimizeCbModel(modelClosed, 'max');
+
+exchange_fluxes = FBA.x(find(ismember(modelClosed.rxns, reaction_abbrvs)));%
+%
+exchange_atoms = zeros(length(exchange_fluxes),1);
+for i = 1:length(exchange_atoms)
+    tmp1 = printRxnFormula(modelClosed,reaction_abbrvs(i));
+    tmp2 = strtrim(regexp(tmp1{1}, '->|<=>', 'split'));
+    metID = findMetIDs(modelClosed, tmp2{1});
+    metFormula= modelClosed.metFormulas(metID);
+    atomicStructure = parse_formula(metFormula{1});
+    C_atoms = zeros(1);
+    if(isfield(atomicStructure, 'C'))
+        C_atoms(1) = atomicStructure.C;
+    else
+        C_atoms(1) = 0;
+    end
+    exchange_atoms(i) = C_atoms(1);
+end
+%
+Secretion_fluxes = exchange_fluxes(exchange_fluxes > 0.0);
+Secretion_atoms = exchange_atoms(exchange_fluxes > 0.0);
+Uptake_fluxes = exchange_fluxes(exchange_fluxes < 0.0);
+Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
+%
+Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
+Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
+%
+CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
+
 
