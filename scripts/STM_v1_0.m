@@ -27,7 +27,7 @@ model.lb(find(ismember(model.rxns, model.rxns(modelexchanges))))=0;
 % set uber bounds (=excretion) to 1000 just to be safe
 model.ub(selExc) = 1000; 
 % change objective function to biomass optimization
-model = changeObjective(model,'BIOMASS_');
+model = changeObjective(model,'BIOMASS_Ec_iAF1260_core_59p81M');
 modelClosedOri = modelClosed; % store this setup in modelClosedOri so we don't have to repeat above lines
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,7 +41,7 @@ modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = 1000;
 modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_ac_e'))) = -1;
 modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_ac_e'))) = -1;
 FBA = optimizeCbModel(modelClosed, 'max');
-% calc CUE
+% calc C
 %printFluxVector(model,FBA.x,true,true) % only print exchange reaction fluxes 
 %
 exchange_fluxes = FBA.x(find(ismember(modelClosed.rxns, reaction_abbrvs)));
@@ -70,7 +70,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_1_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
+STM_v1_0_1_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Pyruvate
 modelClosed = modelClosedOri;
@@ -109,7 +109,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_2_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
+STM_v1_0_2_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % D-glucose
 modelClosed = modelClosedOri;
@@ -148,7 +148,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_3_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
+STM_v1_0_3_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   % not the right value...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Fumarate
 modelClosed = modelClosedOri;
@@ -187,7 +187,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_4_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
+STM_v1_0_4_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Acetaldehyde
 modelClosed = modelClosedOri;
@@ -226,7 +226,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_5_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   
+STM_v1_0_5_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2-oxoglutarate
 modelClosed = modelClosedOri;
@@ -265,7 +265,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_6_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   
+STM_v1_0_6_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ethanol
 modelClosed = modelClosedOri;
@@ -304,7 +304,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_7_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
+STM_v1_0_7_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Formate
 modelClosed = modelClosedOri;
@@ -343,7 +343,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_8_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
+STM_v1_0_8_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % D-fructose
 modelClosed = modelClosedOri;
@@ -382,7 +382,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_9_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;
+STM_v1_0_9_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % L-glutamine
 modelClosed = modelClosedOri;
@@ -421,7 +421,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_10_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
+STM_v1_0_10_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp;  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % L-glutamate
 modelClosed = modelClosedOri;
@@ -460,7 +460,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_11_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
+STM_v1_0_11_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % D-lactate
 modelClosed = modelClosedOri;
@@ -499,7 +499,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_12_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
+STM_v1_0_12_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % L-malate
 modelClosed = modelClosedOri;
@@ -538,7 +538,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_13_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
+STM_v1_0_13_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Succinate
 modelClosed = modelClosedOri;
@@ -577,7 +577,7 @@ Uptake_atoms = exchange_atoms(exchange_fluxes < 0.0);
 Uptake_tmp = abs(sum(Uptake_fluxes.*Uptake_atoms));
 Secretion_tmp = abs(sum(Secretion_fluxes.*Secretion_atoms));
 %
-STM_v1_0_14_CUE = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
+STM_v1_0_14_C = (Uptake_tmp - Secretion_tmp)/Uptake_tmp; 
 
 
 

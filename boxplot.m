@@ -1,2 +1,18 @@
+acet_vals = [iAF692_1_C, iYL1228_1_C, STM_v1_0_1_C, iYO844_1_C, iSBO1134_1_C, iSB619_1_C, iMM904_1_C, iLJ478_1_C, iJN678_1_C, iHN637_1_C, iEK1008_1_C, iAF987_1_C, iAF1260b_1_C]
+pyr_vals = [iAF692_2_C, iYL1228_2_C, STM_v1_0_2_C, iYO844_2_C, iSBO1134_2_C, iSB619_2_C, iMM904_2_C, iLJ478_2_C, iJN678_2_C, iHN637_2_C, iEK1008_2_C, iAF987_2_C, iAF1260b_2_C]
+dglu_vals = [iAF692_3_C, iYL1228_3_C, STM_v1_0_3_C, iYO844_3_C, iSBO1134_3_C, iSB619_3_C, iMM904_3_C, iLJ478_3_C, iJN678_3_C, iHN637_3_C, iEK1008_3_C, iAF987_3_C, iAF1260b_3_C]
+fum_vals = [iAF692_4_C, iYL1228_4_C, STM_v1_0_4_C, iYO844_4_C, iSBO1134_4_C, iSB619_4_C, iMM904_4_C, iLJ478_4_C, iJN678_4_C, iHN637_4_C, iEK1008_4_C, iAF987_4_C, iAF1260b_4_C]
+acetal_vals = [iAF692_5_C, iYL1228_5_C, STM_v1_0_5_C, iYO844_5_C, iSBO1134_5_C, iSB619_5_C, iMM904_5_C, iLJ478_5_C, iJN678_5_C, iHN637_5_C, iEK1008_5_C, iAF987_5_C, iAF1260b_5_C]
+2oxo_vals = [iAF692_6_C, iYL1228_6_C, STM_v1_0_6_C, iYO844_6_C, iSBO1134_6_C, iSB619_6_C, iMM904_6_C, iLJ478_6_C, iJN678_6_C, iHN637_6_C, iEK1008_6_C, iAF987_6_C, iAF1260b_6_C]
+eth_vals = [iAF692_7_C, iYL1228_7_C, STM_v1_0_7_C, iYO844_7_C, iSBO1134_7_C, iSB619_7_C, iMM904_7_C, iLJ478_7_C, iJN678_7_C, iHN637_7_C, iEK1008_7_C, iAF987_7_C, iAF1260b_7_C]
+form_vals = [iAF692_8_C, iYL1228_8_C, STM_v1_0_8_C, iYO844_8_C, iSBO1134_8_C, iSB619_8_C, iMM904_8_C, iLJ478_8_C, iJN678_8_C, iHN637_8_C, iEK1008_8_C, iAF987_8_C, iAF1260b_8_C]
+dfruct_vals = [iAF692_9_C, iYL1228_9_C, STM_v1_0_9_C, iYO844_9_C, iSBO1134_9_C, iSB619_9_C, iMM904_9_C, iLJ478_9_C, iJN678_9_C, iHN637_9_C, iEK1008_9_C, iAF987_9_C, iAF1260b_9_C]
+lglutamine_vals = [iAF692_10_C, iYL1228_10_C, STM_v1_0_10_C, iYO844_10_C, iSBO1134_10_C, iSB619_10_C, iMM904_10_C, iLJ478_10_C, iJN678_10_C, iHN637_10_C, iEK1008_10_C, iAF987_10_C, iAF1260b_10_C]
+lglutamate_vals = [iAF692_11_C, iYL1228_11_C, STM_v1_0_11_C, iYO844_11_C, iSBO1134_11_C, iSB619_11_C, iMM904_11_C, iLJ478_11_C, iJN678_11_C, iHN637_11_C, iEK1008_11_C, iAF987_11_C, iAF1260b_11_C]
+dlac_vals = [iAF692_12_C, iYL1228_12_C, STM_v1_0_12_C, iYO844_12_C, iSBO1134_12_C, iSB619_12_C, iMM904_12_C, iLJ478_12_C, iJN678_12_C, iHN637_12_C, iEK1008_12_C, iAF987_12_C, iAF1260b_12_C]
+lmal_vals = [iAF692_13_C, iYL1228_13_C, STM_v1_0_13_C, iYO844_13_C, iSBO1134_13_C, iSB619_13_C, iMM904_13_C, iLJ478_13_C, iJN678_13_C, iHN637_13_C, iEK1008_13_C, iAF987_13_C, iAF1260b_13_C]
+succ_vals = [iAF692_14_C, iYL1228_14_C, STM_v1_0_14_C, iYO844_14_C, iSBO1134_14_C, iSB619_14_C, iMM904_14_C, iLJ478_14_C, iJN678_14_C, iHN637_14_C, iEK1008_14_C, iAF987_14_C, iAF1260b_14_C]
 
-boxchart(x)
+CUE_vals= [acet_vals, pyr_vals, dglu_vals, fum_vals, acetal_vals, 2oxo_vals, eth_vals, form_vals, dfruct_vals, lglutamine_vals, lglutamate_vals, dlac_vals, lmal_vals, succ_vals]
+metabolites = [Acetate, Pyruvate, D-glucose, Fumarate, Acetaldehyde, 2-oxoglutarate, Ethanol, Formate, D-fructose, L-glutamine, L-glutamate, D-lactate, L-malate, Succinate]
+boxchart(CUE_vals, metabolites)
