@@ -28,19 +28,19 @@ reaction_names = modelClosed.rxnNames(modelexchanges); % store reaction names
 % set lower bounds (=uptake) of all exchange reactions to zero, meaning to uptake
 modelClosed.lb(find(ismember(modelClosed.rxns, modelClosed.rxns(modelexchanges))))=0;
 % set uber bounds(=excretion) to 1000 just to be safe
-modelClosed.ub(selExc) = 1000; 
-modelClosed.lb(selExc) = -100;
+%modelClosed.ub(selExc) = 1000; 
+%modelClosed.lb(selExc) = -100;
 % change objective function to biomass optimization
 modelClosed = changeObjective(modelClosed,'BIOMASS_Ecoli_TM');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Acetate
 modelClosedOri = modelClosed;
-modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_o2_e'))) = -1000;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_o2_e'))) = -100;
 modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = -1000;
 modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_h2o_e'))) = 1000;
 modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = -1000;
 modelClosed.ub(find(ismember(modelClosed.rxns, 'EX_co2_e'))) = 1000;
-modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_ac_e'))) = -1;
+modelClosed.lb(find(ismember(modelClosed.rxns, 'EX_ac_e'))) = -10;
 FBA = optimizeCbModel(modelClosed, 'max');
 
 if isnan(FBA.f)
